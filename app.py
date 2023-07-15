@@ -5,6 +5,7 @@ import geopandas as gpd
 import rasterio
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
 
 
 
@@ -22,8 +23,18 @@ def image_save(result):
     plt.savefig('my_plot.png')
 
 
+
+def export_to_grayscale(input_image_path, output_image_path):
+    image = Image.open(input_image_path)
+    # Convert the image to grayscale
+    grayscale_image = image.convert("L")
+    # Save the grayscale image
+    grayscale_image.save(output_image_path)
+
+
 if upload!='':
     raster = rasterio.open(upload)
+    print(raster.shape)
     bands = raster.read()
     red_band = bands[0].astype(float)
     nir_band = bands[3].astype(float)
@@ -45,6 +56,8 @@ if upload!='':
         image_save(result)
         st.image('my_plot.png')
         st.write(result)
+        export_to_grayscale('my_plot.png', 'out.png')
+
         
     if PredictN:
         st.subheader("Predicted values of N")
