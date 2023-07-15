@@ -34,7 +34,6 @@ def export_to_grayscale(input_image_path, output_image_path):
 
 if upload!='':
     raster = rasterio.open(upload)
-    print(raster.shape)
     bands = raster.read()
     red_band = bands[0].astype(float)
     nir_band = bands[3].astype(float)
@@ -54,9 +53,9 @@ if upload!='':
         predictions = model.predict(df)
         result = predictions.reshape(bands.shape[1:])
         image_save(result)
-        st.image('my_plot.png')
-        st.write(result)
         export_to_grayscale('my_plot.png', 'out.png')
+        st.image('out.png')
+        st.write(result)
 
         
     if PredictN:
@@ -66,7 +65,8 @@ if upload!='':
         predictions = model.predict(df)
         result = predictions.reshape(bands.shape[1:])
         image_save(result)
-        st.image('my_plot.png')
+        export_to_grayscale('my_plot.png', 'out.png')
+        st.image('out.png')
         st.write(result)
     if PredictP:
         st.subheader("Predicted values of P")
@@ -75,6 +75,7 @@ if upload!='':
         predictions = model.predict(df)
         result = predictions.reshape(bands.shape[1:])
         image_save(result)
-        st.image('my_plot.png')
+        export_to_grayscale('my_plot.png', 'out.png')
+        st.image('out.png')
         st.write(result)
         
