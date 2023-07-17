@@ -6,16 +6,53 @@ import rasterio
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
+import requests
+import tifffile
+import tempfile
+import os
+
+
+
+def read_tif_image_from_url(url):
+    try:
+        # Download the image from the URL
+        response = requests.get(url)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Save the image to a temporary file
+            temp_file = tempfile.NamedTemporaryFile(delete=False)
+            temp_file.write(response.content)
+            temp_file.close()
+            
+            # Open the image using tifffile
+            image = tifffile.imread(temp_file.name)
+            
+            
+            # Display the image
+            tifffile.imshow(image)
+            
+            # Clean up the temporary file
+            os.remove(temp_file.name)
+            
+            return image
+        else:
+            print("Error: Failed to download the image. Status code:", response.status_code)
+            return None
+    except Exception as e:
+        print("Error:", str(e))
+        return None
 
 
 
 
 # printing the dataset to the web app
 st.title("Predict the amount of N, K, and P")
-# uploaded_file = st.file_uploader("Upload your TIF image here...")
-
 shapefile = gpd.read_file("file/SAMPLE_GESER/Sampel_LSU_DATA_PREDIKSI.shp")
-upload = st.text_input("Enter the path of the image")
+upload = st.text_input("Enter the URL of the Image")
+
+
+
 
 def image_save(result):
     plt.imshow(result, cmap='RdYlGn')
@@ -33,7 +70,11 @@ def export_to_grayscale(input_image_path, output_image_path):
 
 
 if upload!='':
-    raster = rasterio.open(upload)
+    image = read_tif_image_from_url(upload)
+    save_path = "Image.tif"    
+    # Save the image to the specified file path
+    tifffile.imsave(save_path, image)
+    raster = rasterio.open('Image.tif')
     bands = raster.read()
     red_band = bands[0].astype(float)
     nir_band = bands[3].astype(float)
